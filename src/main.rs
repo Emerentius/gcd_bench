@@ -76,7 +76,7 @@ macro_rules! implement_has_gcd_for_ints {
             fn binary_gcd(&self, other: &Self) -> Self {
                 let mut m = *self;
                 let mut n = *other;
-                if m == 0 || n == 0 { return m | n }
+                if m == 0 || n == 0 { return (m | n).abs() }
 
                 // find common factors of 2
                 let shift = (m | n).trailing_zeros();
@@ -204,10 +204,50 @@ fn main() {
 
 #[test]
 fn equality() {
-    for num1 in 0..5000 {
-        for num2 in 0..5000 {
+    for num1 in -2000..2000 {
+        for num2 in -2000..2000 {
             let gcd_1 = gcd(num1, num2);
+            let gcd_2 = binary_gcd(num1, num2);
+            if gcd_1 != gcd_2 { panic!("num1: {}, num2: {}, gcd: {}, binary_gcd: {}", num1, num2, gcd_1, gcd_2) }
             assert!( gcd_1 == binary_gcd(num1, num2) );
         }
     }
+}
+
+/* panics for another reason than when the code is inside main()
+   reason: overflow when attempting negation
+           nothing ever attempts to negate except the -128_i8 literal
+#[test]
+fn almost_every_combination_i8() {
+    // except for max_value obviously
+    for num1 in -128_i8..127 {
+        for num2 in -128_i8..127 {
+            let gcd_1 = gcd(num1, num2);
+            let gcd_2 = binary_gcd(num1, num2);
+            if gcd_1 != gcd_2 { panic!("num1: {}, num2: {}, gcd: {}, binary_gcd: {}", num1, num2, gcd_1, gcd_2) }
+            assert!( gcd_1 == binary_gcd(num1, num2) );
+        }
+    }
+}
+*/
+
+#[test]
+fn almost_every_combination_u8() {
+    // except for max_value obviously
+    for num1 in 0_u8..255 {
+        for num2 in 0_u8..255 {
+            let gcd_1 = gcd(num1, num2);
+            let gcd_2 = binary_gcd(num1, num2);
+            if gcd_1 != gcd_2 { panic!("num1: {}, num2: {}, gcd: {}, binary_gcd: {}", num1, num2, gcd_1, gcd_2) }
+            assert!( gcd_1 == binary_gcd(num1, num2) );
+        }
+    }
+}
+
+#[test]
+fn border_cases() {
+    assert!( binary_gcd(i8::min_value(), i8::min_value()) == i8::min_value() );
+    assert!( binary_gcd(i8::min_value(), i8::max_value()) == 1 );
+    assert!( binary_gcd(i8::max_value(), i8::min_value()) == 1 );
+    assert!( binary_gcd(i8::max_value(), i8::max_value()) == i8::max_value() );
 }
