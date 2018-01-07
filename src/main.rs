@@ -135,7 +135,7 @@ macro_rules! define_bench {
             // num crate gcd
             let start1 = PreciseTime::now();
             for nums in random_nums.chunks(2) {
-                if let [a,b] = nums {
+                if let &[a,b] = nums {
                     for _ in 0..REPS {
                         test::black_box( gcd(a,b) );
                     }
@@ -148,7 +148,7 @@ macro_rules! define_bench {
             // binary gcd
             let start2 = PreciseTime::now();
             for nums in random_nums.chunks(2) {
-                if let [a,b] = nums {
+                if let &[a,b] = nums {
                     for _ in 0..REPS {
                         test::black_box( binary_gcd(a,b) );
                     }
@@ -161,7 +161,7 @@ macro_rules! define_bench {
             println!("{:15}{:6.2} ns / call ( {:5.1}% faster )", "binary_gcd: ", time2, improvement);
 
             for nums in random_nums.chunks(2) {
-                if let [a,b] = nums {
+                if let &[a,b] = nums {
                     let gcd_1 = gcd(a,b);
                     if gcd_1 != binary_gcd(a,b) {
                         panic!("Assertion failed for x,y: {}, {}, type {}", a,b,$print_message)
